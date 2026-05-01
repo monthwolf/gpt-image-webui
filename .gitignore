@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+out/
+.codex/
+data/
+outputs/
+.env
+.env.*
+npm-debug.log*
+*.local
+__pycache__/

@@ -1,0 +1,18 @@
+services:
+  gpt-image-webui:
+    build:
+      context: .
+    image: gpt-image-webui:latest
+    container_name: gpt-image-webui
+    ports:
+      - "3101:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin123456
+      AUTH_SECRET: change-this-secret-in-production
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    restart: unless-stopped
