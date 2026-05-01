@@ -3,6 +3,8 @@
 一个基于 `Node.js + React + Express + Vite` 的图像生成工作台。项目面向多人使用场景，提供画廊式结果管理、提示词改写、历史复用、收藏、账号隔离、Docker 部署和 GitHub Actions 自动构建镜像等能力。
 
 它不是单一的生图表单，而是围绕“生成、查看、沉淀、复用”设计的多人工作台。主界面以图片画廊为中心，右侧保留折叠式生成面板，设置和详情通过弹窗打开，适合长期保存结果和多人共享部署。
+<img width="2549" height="2279" alt="image" src="https://github.com/user-attachments/assets/3b691b49-781c-407e-91fa-7bd1b9d4de28" />
+
 
 ## 主要能力
 
