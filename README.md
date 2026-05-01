@@ -1,6 +1,7 @@
 # GPT Image WebUI
 
 基于 `Node.js + React + Express + Vite` 的本地图像生成工作台。服务端负责设置存储、Responses 请求、流式解析、生成历史和图片落盘；前端生产构建后由同一个 Express 服务提供。
+<img width="2549" height="2279" alt="image" src="https://github.com/user-attachments/assets/ebbc60a2-d2a5-4167-8c7b-91c827741b78" />
 
 ## 目录
 
