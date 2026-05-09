@@ -21,7 +21,7 @@ import {
   verifySession
 } from "./auth-store.js";
 import { addHistoryItem, deleteHistoryItem, loadHistory, updateHistoryItem } from "./history-store.js";
-import { ensureRuntimeDirs, generateImages, normalizeImageCount } from "./image-service.js";
+import { ensureRuntimeDirs, generateImages, normalizeImageCount, normalizePartialImageCount } from "./image-service.js";
 import { rewritePromptWithModel } from "./prompt-rewrite-service.js";
 import { loadSettings, saveSettings } from "./settings-store.js";
 
@@ -307,6 +307,7 @@ app.post("/api/generate", async (req, res) => {
     background: body.background || "auto",
     moderation: body.moderation || "auto",
     n: normalizeImageCount(body.n),
+    partialImages: normalizePartialImageCount(body.partialImages ?? body.partial_images),
     action: body.action || "auto",
     forceToolChoice: Boolean(body.forceToolChoice),
     referenceImages,
@@ -327,6 +328,7 @@ app.post("/api/generate", async (req, res) => {
     quality: options.quality,
     outputFormat: options.outputFormat,
     n: options.n,
+    partialImages: options.partialImages,
     referenceImages: options.referenceImages.length,
     forceToolChoice: options.forceToolChoice
   });

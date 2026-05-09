@@ -10,6 +10,7 @@ const EMPTY_GENERATION = {
   background: "auto",
   moderation: "auto",
   n: 1,
+  partialImages: 1,
   action: "auto",
   forceToolChoice: true,
   timeoutSeconds: 600,
@@ -63,6 +64,12 @@ function clampImageCount(value) {
   const count = Number.parseInt(value, 10);
   if (!Number.isFinite(count)) return 1;
   return Math.min(4, Math.max(1, count));
+}
+
+function clampPartialImageCount(value) {
+  const count = Number.parseInt(value, 10);
+  if (!Number.isFinite(count)) return 1;
+  return Math.min(3, Math.max(0, count));
 }
 
 function hasActiveTextSelection() {
@@ -1075,6 +1082,7 @@ function GenerationStatusCard({ isGenerating, status, resultCount, generation })
         <strong>{isGenerating ? "生成任务进行中" : status.message}</strong>
       </div>
       <div className="generation-status-grid">
+        <span><small>中间图</small><b>{clampPartialImageCount(generation.partialImages)} 张</b></span>
         <span><small>图像模型</small><b>{generation.imageModel || "gpt-image-2"}</b></span>
         <span><small>方式</small><b>{generation.imageCallMode === "images_api" ? "Images API" : "GPT Tool"}</b></span>
         <span><small>尺寸</small><b>{generation.size || "auto"}</b></span>
@@ -1151,6 +1159,7 @@ function ComposePanel(props) {
           <label className="field"><span>审核</span><select value={generation.moderation} onChange={(event) => onFieldChange("moderation", event.target.value)}><option value="auto">auto</option><option value="low">low</option></select></label>
         </div>
         <label className="field"><span>结果图数量：{clampImageCount(generation.n)} 张</span><input type="range" min="1" max="4" step="1" value={clampImageCount(generation.n)} onChange={(event) => onFieldChange("n", clampImageCount(event.target.value))} /></label>
+        <label className="field"><span>中间图数量：{clampPartialImageCount(generation.partialImages)} 张</span><input type="range" min="0" max="3" step="1" value={clampPartialImageCount(generation.partialImages)} onChange={(event) => onFieldChange("partialImages", clampPartialImageCount(event.target.value))} /></label>
         <label className="field"><span>压缩率：{generation.outputCompression}</span><input type="range" min="0" max="100" value={generation.outputCompression} onChange={(event) => onFieldChange("outputCompression", Number(event.target.value))} /></label>
       </PanelSection>
 

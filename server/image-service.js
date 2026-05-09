@@ -46,6 +46,12 @@ export function normalizeImageCount(value) {
   return Math.min(4, Math.max(1, count));
 }
 
+export function normalizePartialImageCount(value) {
+  const count = Number.parseInt(value, 10);
+  if (!Number.isFinite(count)) return 1;
+  return Math.min(3, Math.max(0, count));
+}
+
 function isAbortError(error) {
   return error?.name === "AbortError" || /aborted|abort/i.test(String(error?.message || error));
 }
@@ -59,6 +65,7 @@ function normalizeCallMode(value) {
 }
 
 export function buildResponsesToolRequestPayload(options) {
+  const partialImages = normalizePartialImageCount(options.partialImages ?? options.partial_images);
   const tool = {
     type: "image_generation",
     model: String(options.imageModel || DEFAULT_IMAGE_MODEL).trim() || DEFAULT_IMAGE_MODEL,
@@ -70,6 +77,9 @@ export function buildResponsesToolRequestPayload(options) {
     moderation: options.moderation
   };
 
+  if (partialImages > 0) {
+    tool.partial_images = partialImages;
+  }
   if (options.action !== "auto") {
     tool.action = options.action;
   }
@@ -94,6 +104,9 @@ export function buildResponsesToolRequestPayload(options) {
     tools: [tool]
   };
 
+  if (partialImages > 0) {
+    payload.stream = true;
+  }
   if (options.forceToolChoice) {
     payload.tool_choice = { type: "image_generation" };
   }
@@ -257,6 +270,11 @@ export async function* generateImages(options) {
         throw new Error(buildHttpErrorMessage(response.status, response.statusText, responseText, endpoint));
       }
 
+      if (requestPayload.stream) {
+        yield* consumeStreamingResponse(responseText, options.outputFormat, outputDir, publicPathPrefix);
+        return;
+      }
+
       yield* consumeStandardResponse(responseText, options.outputFormat, outputDir, publicPathPrefix);
       return;
     } catch (error) {
@@ -305,24 +323,12 @@ async function* consumeStandardResponse(responseText, outputFormat, outputDir, p
   };
 }
 
-async function* consumeStreamingResponse(response, outputFormat, outputDir, publicPathPrefix) {
-  const decoder = new TextDecoder();
-  const reader = response.body.getReader();
-  let buffer = "";
+async function* consumeStreamingResponse(responseText, outputFormat, outputDir, publicPathPrefix) {
+  const lines = String(responseText || "").split(/\r?\n/);
   const partials = [];
   const collectedEvents = [];
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
-    }
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split(/\r?\n/);
-    buffer = lines.pop() || "";
-
-    for (const rawLine of lines) {
+  for (const rawLine of lines) {
       const line = rawLine.trim();
       if (!line.startsWith("data:")) {
         continue;
@@ -372,7 +378,6 @@ async function* consumeStreamingResponse(response, outputFormat, outputDir, publ
         };
         return;
       }
-    }
   }
 
   const finalImages = await extractImagesFromResponse(collectedEvents, outputFormat, outputDir, publicPathPrefix);

@@ -12,6 +12,12 @@ function normalizeImageCount(value) {
   return Math.min(4, Math.max(1, count));
 }
 
+function normalizePartialImageCount(value) {
+  const count = Number.parseInt(value, 10);
+  if (!Number.isFinite(count)) return 1;
+  return Math.min(3, Math.max(0, count));
+}
+
 export function getUserHistoryPath(userId) {
   return path.join(getUserDataDir(userId), "history.json");
 }
@@ -46,6 +52,7 @@ function normalizeSettings(settings = {}) {
     background: String(settings.background || "auto"),
     moderation: String(settings.moderation || "auto"),
     n: normalizeImageCount(settings.n),
+    partialImages: normalizePartialImageCount(settings.partialImages ?? settings.partial_images),
     action: String(settings.action || "auto"),
     forceToolChoice: Boolean(settings.forceToolChoice),
     timeoutSeconds: Number(settings.timeoutSeconds ?? 600),
